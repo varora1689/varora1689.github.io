@@ -245,30 +245,20 @@ function evaluateSchedule(code){
 		}
 	}
 	else{
-		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
-		if(score1[0] > score1[1] || score1[1] > score1[0]){
-			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
-			if(score1[1] > score1[0]){
-				wildcardWinners.push(team);
-				wildcardWinnerSeeds.push(3);
-			}
-			else{
-				wildcardWinners.push(team1);
-				wildcardWinnerSeeds.push(6);
-			}
+		var teamPenPct = Math.floor(eval("penaltyPct." + team.key) * 5);
+		var team1PenPct = Math.floor(eval("penaltyPct." + team1.key) * 5);
+		if(team1PenPct > teamPenPct){
+			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
+			wildcardWinners.push(team1);
+			wildcardWinnerSeeds.push(6);
 		}
 		else{
-			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
-			var teamPenPct = eval("penaltyPct." + team.key);
-			var team1PenPct = eval("penaltyPct." + team1.key);
-			if(teamPenPct < team1PenPct){
-				wildcardWinners.push(team1);
-				wildcardWinnerSeeds.push(6);
+			if(teamPenPct == team1PenPct){
+				teamPenPct = teamPenPct + 1;
 			}
-			else{
-				wildcardWinners.push(team);
-				wildcardWinnerSeeds.push(3);
-			}
+			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
+			wildcardWinners.push(team);
+			wildcardWinnerSeeds.push(3);
 		}
 	}
 
@@ -290,30 +280,20 @@ function evaluateSchedule(code){
 		}
 	}
 	else{
-		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
-		if(score1[0] > score1[1] || score1[1] > score1[0]){
-			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
-			if(score1[1] > score1[0]){
-				wildcardWinners.push(team);
-				wildcardWinnerSeeds.push(4);
-			}
-			else{
-				wildcardWinners.push(team1);
-				wildcardWinnerSeeds.push(5);
-			}
+		var teamPenPct = Math.floor(eval("penaltyPct." + team.key) * 5);
+		var team1PenPct = Math.floor(eval("penaltyPct." + team1.key) * 5);
+		if(team1PenPct > teamPenPct){
+			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
+			wildcardWinners.push(team1);
+			wildcardWinnerSeeds.push(5);
 		}
 		else{
-			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
-			var teamPenPct = eval("penaltyPct." + team.key);
-			var team1PenPct = eval("penaltyPct." + team1.key);
-			if(teamPenPct < team1PenPct){
-				wildcardWinners.push(team1);
-				wildcardWinnerSeeds.push(5);
+			if(teamPenPct == team1PenPct){
+				teamPenPct = teamPenPct + 1;
 			}
-			else{
-				wildcardWinners.push(team);
-				wildcardWinnerSeeds.push(4);
-			}
+			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
+			wildcardWinners.push(team);
+			wildcardWinnerSeeds.push(4);
 		}
 	}
 
@@ -339,30 +319,20 @@ function evaluateSchedule(code){
 		}
 	}
 	else{
-		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
-		if(score1[0] > score1[1] || score1[1] > score1[0]){
-			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
-			if(score1[1] > score1[0]){
-				divisionalWinners.push(team);
-				divisionalWinnersSeeds.push(1);
-			}
-			else{
-				divisionalWinners.push(team1);
-				divisionalWinnersSeeds.push(wildcardWinnerSeeds[0]);
-			}
+		var teamPenPct = Math.floor(eval("penaltyPct." + team.key) * 5);
+		var team1PenPct = Math.floor(eval("penaltyPct." + team1.key) * 5);
+		if(team1PenPct > teamPenPct){
+			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
+			divisionalWinners.push(team1);
+			divisionalWinnersSeeds.push(wildcardWinnerSeeds[0]);
 		}
 		else{
-			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
-			var teamPenPct = eval("penaltyPct." + team.key);
-			var team1PenPct = eval("penaltyPct." + team1.key);
-			if(teamPenPct < team1PenPct){
-				divisionalWinners.push(team1);
-				divisionalWinnersSeeds.push(wildcardWinnerSeeds[0]);
+			if(teamPenPct == team1PenPct){
+				teamPenPct = teamPenPct + 1;
 			}
-			else{
-				divisionalWinners.push(team);
-				divisionalWinnersSeeds.push(1);
-			}
+			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
+			divisionalWinners.push(team);
+			divisionalWinnersSeeds.push(1);
 		}
 	}
 
@@ -384,30 +354,20 @@ function evaluateSchedule(code){
 		}
 	}
 	else{
-		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
-		if(score1[0] > score1[1] || score1[1] > score1[0]){
-			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
-			if(score1[1] > score1[0]){
-				divisionalWinners.push(team);
-				divisionalWinnersSeeds.push(2);
-			}
-			else{
-				divisionalWinners.push(team1);
-				divisionalWinnersSeeds.push(wildcardWinnerSeeds[1]);
-			}
+		var teamPenPct = Math.floor(eval("penaltyPct." + team.key) * 5);
+		var team1PenPct = Math.floor(eval("penaltyPct." + team1.key) * 5);
+		if(team1PenPct > teamPenPct){
+			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
+			divisionalWinners.push(team1);
+			divisionalWinnersSeeds.push(wildcardWinnerSeeds[1]);
 		}
 		else{
-			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
-			var teamPenPct = eval("penaltyPct." + team.key);
-			var team1PenPct = eval("penaltyPct." + team1.key);
-			if(teamPenPct < team1PenPct){
-				divisionalWinners.push(team1);
-				divisionalWinnersSeeds.push(wildcardWinnerSeeds[1]);
+			if(teamPenPct == team1PenPct){
+				teamPenPct = teamPenPct + 1;
 			}
-			else{
-				divisionalWinners.push(team);
-				divisionalWinnersSeeds.push(2);
-			}
+			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
+			divisionalWinners.push(team);
+			divisionalWinnersSeeds.push(2);
 		}
 	}
 
@@ -444,26 +404,18 @@ function evaluateSchedule(code){
 		}
 	}
 	else{
-		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
-		if(score1[0] > score1[1] || score1[1] > score1[0]){
-			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
-			if(score1[1] > score1[0]){
-				champion = team;
-			}
-			else{
-				champion = team1;
-			}
+		var teamPenPct = Math.floor(eval("penaltyPct." + team.key) * 5);
+		var team1PenPct = Math.floor(eval("penaltyPct." + team1.key) * 5);
+		if(team1PenPct > teamPenPct){
+			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
+			champion = team1;
 		}
 		else{
-			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
-			var teamPenPct = eval("penaltyPct." + team.key);
-			var team1PenPct = eval("penaltyPct." + team1.key);
-			if(teamPenPct < team1PenPct){
-				champion = team1;
+			if(teamPenPct == team1PenPct){
+				teamPenPct = teamPenPct + 1;
 			}
-			else{
-				champion = team;
-			}
+			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + teamPenPct + "-" + team1PenPct + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
+			champion = team;
 		}
 	}
 
@@ -1430,7 +1382,7 @@ var actualResults = [{"name":"Play-Off um 1 Premierleague-Platz:","matches":[{"d
 		<th>Seed</th>
 		<th></th>
 		<th>Home Team</th>
-		<th>Score (Replay)</th>
+		<th>Score (Penalties)</th>
 		<th>Away Team</th>
 		<th></th>
 		<th>Seed</th>
@@ -1443,7 +1395,7 @@ var actualResults = [{"name":"Play-Off um 1 Premierleague-Platz:","matches":[{"d
 		<th>Seed</th>
 		<th></th>
 		<th>Home Team</th>
-		<th>Score (Replay)</th>
+		<th>Score (Penalties)</th>
 		<th>Away Team</th>
 		<th></th>
 		<th>Seed</th>
@@ -1456,7 +1408,7 @@ var actualResults = [{"name":"Play-Off um 1 Premierleague-Platz:","matches":[{"d
 		<th>Seed</th>
 		<th></th>
 		<th>Home Team</th>
-		<th>Score (Replay)</th>
+		<th>Score (Penalties)</th>
 		<th>Away Team</th>
 		<th></th>
 		<th>Seed</th>
