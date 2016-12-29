@@ -259,8 +259,16 @@ function evaluateSchedule(code){
 		}
 		else{
 			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
-			wildcardWinners.push(team);
-			wildcardWinnerSeeds.push(3);
+			var teamPenPct = eval("penaltyPct." + team.key);
+			var team1PenPct = eval("penaltyPct." + team1.key);
+			if(teamPenPct < team1PenPct){
+				wildcardWinners.push(team1);
+				wildcardWinnerSeeds.push(6);
+			}
+			else{
+				wildcardWinners.push(team);
+				wildcardWinnerSeeds.push(3);
+			}
 		}
 	}
 
@@ -296,8 +304,16 @@ function evaluateSchedule(code){
 		}
 		else{
 			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
-			wildcardWinners.push(team);
-			wildcardWinnerSeeds.push(4);
+			var teamPenPct = eval("penaltyPct." + team.key);
+			var team1PenPct = eval("penaltyPct." + team1.key);
+			if(teamPenPct < team1PenPct){
+				wildcardWinners.push(team1);
+				wildcardWinnerSeeds.push(5);
+			}
+			else{
+				wildcardWinners.push(team);
+				wildcardWinnerSeeds.push(4);
+			}
 		}
 	}
 
@@ -337,8 +353,16 @@ function evaluateSchedule(code){
 		}
 		else{
 			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
-			divisionalWinners.push(team);
-			divisionalWinnersSeeds.push(1);
+			var teamPenPct = eval("penaltyPct." + team.key);
+			var team1PenPct = eval("penaltyPct." + team1.key);
+			if(teamPenPct < team1PenPct){
+				divisionalWinners.push(team1);
+				divisionalWinnersSeeds.push(wildcardWinnerSeeds[0]);
+			}
+			else{
+				divisionalWinners.push(team);
+				divisionalWinnersSeeds.push(1);
+			}
 		}
 	}
 
@@ -374,8 +398,16 @@ function evaluateSchedule(code){
 		}
 		else{
 			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
-			divisionalWinners.push(team);
-			divisionalWinnersSeeds.push(2);
+			var teamPenPct = eval("penaltyPct." + team.key);
+			var team1PenPct = eval("penaltyPct." + team1.key);
+			if(teamPenPct < team1PenPct){
+				divisionalWinners.push(team1);
+				divisionalWinnersSeeds.push(wildcardWinnerSeeds[1]);
+			}
+			else{
+				divisionalWinners.push(team);
+				divisionalWinnersSeeds.push(2);
+			}
 		}
 	}
 
@@ -424,7 +456,14 @@ function evaluateSchedule(code){
 		}
 		else{
 			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
-			champion = team;
+			var teamPenPct = eval("penaltyPct." + team.key);
+			var team1PenPct = eval("penaltyPct." + team1.key);
+			if(teamPenPct < team1PenPct){
+				champion = team1;
+			}
+			else{
+				champion = team;
+			}
 		}
 	}
 
@@ -1297,6 +1336,8 @@ function generateCode(){
 
 
 //DATA HERE
+
+var penaltyPct = {"leicester" : 0.769, "mancity" : 0.625, "watford" : 0.857, "everton" : 0.8, "westbrom" : 0.2, "stoke" : 1, "chelsea" : 0.8, "crystalpalace" : 0.8, "swansea" : 1, "tottenham" : 1, "westham" : 1, "bournemouth" : 0.75, "southampton" : 0.75, "sunderland" : 1, "newcastle" : 1, "manutd" : 1, "astonvilla" : 1, "liverpool" : 1, "arsenal" : 0.5, "norwich" : 1};
 
 var trophyPic = "http://orig06.deviantart.net/afab/f/2014/222/c/2/premier_league_trophy_render_by_fristajlere-d7unae9.png";
 
