@@ -1,0 +1,1428 @@
+<html>
+<head>
+<script>
+function setup(){
+	divisions = {"north" : [{"name" : "Stoke City", "key" : "stoke"}, {"name" : "Manchester City", "key" : "mancity"}, {"name" : "Manchester United", "key" : "manutd"}, {"name" : "Newcastle United", "key" : "newcastle"}, {"name" : "Sunderland", "key" : "sunderland"}], "south" : [{"name" : "Arsenal", "key" : "arsenal"}, {"name" : "Crystal Palace", "key" : "crystalpalace"}, {"name" : "Southampton", "key" : "southampton"}, {"name" : "Tottenham Hotspur", "key" : "tottenham"}, {"name" : "Bournemouth", "key" : "bournemouth"}], "east" : [{"name" : "Chelsea", "key" : "chelsea"}, {"name" : "Norwich", "key" : "norwich"}, {"name" : "Watford", "key" : "watford"}, {"name" : "West Ham United", "key" : "westham"}, {"name" : "Leicester City", "key" : "leicester"}], "west" : [{"name" : "Everton", "key" : "everton"}, {"name" : "Liverpool", "key" : "liverpool"}, {"name" : "Aston Villa", "key" : "astonvilla"}, {"name" : "Swansea City", "key" : "swansea"}, {"name" : "West Bromwich Albion", "key" : "westbrom"}]};
+
+	String.prototype.shuffle = function(){
+		var a = this.split("");
+		n = a.length;
+
+		for(var i = n - 1; i > 0; i--){
+			var j = Math.floor(Math.random() * (i + 1));
+			var tmp = a[i];
+			a[i] = a[j];
+			a[j] = tmp;
+		}
+		return a.join("");
+	}
+}
+
+function setupTables(){
+	var table = document.getElementById("northTable");
+	for(index = 0; index < divisions.north.length; index++){
+		var team = getTeambyIndex(index);
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	}
+	table = document.getElementById("southTable");
+	for(index = 0; index < divisions.south.length; index++){
+		var team = getTeambyIndex(index + 5);
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	}
+	table = document.getElementById("eastTable");
+	for(index = 0; index < divisions.east.length; index++){
+		var team = getTeambyIndex(index + 10);
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	}
+	table = document.getElementById("westTable");
+	for(index = 0; index < divisions.west.length; index++){
+		var team = getTeambyIndex(index + 15);
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	}
+}
+
+function evaluateSchedule(code){
+	var div = document.getElementById("buttonDiv");
+	div.innerHTML = "current code is " + code;
+
+	var groupWinners = [];
+	var others = [];
+
+	for(index = 0; index < divisions.north.length; index++){
+		var team = divisions.north[index];
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			var game = team.schedule[index1];
+			if(game.score[game.HA] > game.score[1 - game.HA]){
+				team.l = team.l + 1;
+				team.gf = team.gf + game.score[1 - game.HA];
+				team.ga = team.ga + game.score[game.HA];
+			}
+			else{
+				if(game.score[game.HA] == game.score[1 - game.HA]){
+					team.d = team.d + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 1;
+				}
+				else{
+					team.w = team.w + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 3;
+				}
+			}
+		}
+		team.gd = team.gf - team.ga;
+	}
+	var copy = eval(JSON.stringify(divisions.north));
+	copy.sort(compare);
+
+	groupWinners.push(copy[0]);
+	others.push(...copy.slice(1, 5));
+
+	var table = document.getElementById('northTable');
+	table.innerHTML = "<tr><th></th><th>Team</th><th>Wins</th><th>Draws</th><th>Losses</th><th>Goals For</th><th>Goals Against</th><th>Goal Difference</th><th>Points</th></tr>";
+
+	for(index = 0; index < copy.length; index++){
+		team = copy[index];
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + team.w + "</td><td>" + team.d + "</td><td>" + team.l + "</td><td>" + team.gf + "</td><td>" + team.ga + "</td><td>" + team.gd + "</td><td>" + team.points + "</td></tr>";
+	}
+
+	for(index = 0; index < divisions.south.length; index++){
+		var team = divisions.south[index];
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			var game = team.schedule[index1];
+			if(game.score[game.HA] > game.score[1 - game.HA]){
+				team.l = team.l + 1;
+				team.gf = team.gf + game.score[1 - game.HA];
+				team.ga = team.ga + game.score[game.HA];
+			}
+			else{
+				if(game.score[game.HA] == game.score[1 - game.HA]){
+					team.d = team.d + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 1;
+				}
+				else{
+					team.w = team.w + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 3;
+				}
+			}
+		}
+		team.gd = team.gf - team.ga;
+	}
+
+	copy = eval(JSON.stringify(divisions.south));
+	copy.sort(compare);
+
+	groupWinners.push(copy[0]);
+	others.push(...copy.slice(1, 5));
+
+	var table = document.getElementById('southTable');
+	table.innerHTML = "<tr><th></th><th>Team</th><th>Wins</th><th>Draws</th><th>Losses</th><th>Goals For</th><th>Goals Against</th><th>Goal Difference</th><th>Points</th></tr>";
+
+	for(index = 0; index < copy.length; index++){
+		team = copy[index];
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + team.w + "</td><td>" + team.d + "</td><td>" + team.l + "</td><td>" + team.gf + "</td><td>" + team.ga + "</td><td>" + team.gd + "</td><td>" + team.points + "</td></tr>";
+	}
+
+	for(index = 0; index < divisions.east.length; index++){
+		var team = divisions.east[index];
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			var game = team.schedule[index1];
+			if(game.score[game.HA] > game.score[1 - game.HA]){
+				team.l = team.l + 1;
+				team.gf = team.gf + game.score[1 - game.HA];
+				team.ga = team.ga + game.score[game.HA];
+			}
+			else{
+				if(game.score[game.HA] == game.score[1 - game.HA]){
+					team.d = team.d + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 1;
+				}
+				else{
+					team.w = team.w + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 3;
+				}
+			}
+		}
+		team.gd = team.gf - team.ga;
+	}
+
+	copy = eval(JSON.stringify(divisions.east));
+	copy.sort(compare);
+
+	groupWinners.push(copy[0]);
+	others.push(...copy.slice(1, 5));
+
+	var table = document.getElementById('eastTable');
+	table.innerHTML = "<tr><th></th><th>Team</th><th>Wins</th><th>Draws</th><th>Losses</th><th>Goals For</th><th>Goals Against</th><th>Goal Difference</th><th>Points</th></tr>";
+
+	for(index = 0; index < copy.length; index++){
+		team = copy[index];
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + team.w + "</td><td>" + team.d + "</td><td>" + team.l + "</td><td>" + team.gf + "</td><td>" + team.ga + "</td><td>" + team.gd + "</td><td>" + team.points + "</td></tr>";
+	}
+
+	for(index = 0; index < divisions.west.length; index++){
+		var team = divisions.west[index];
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			var game = team.schedule[index1];
+			if(game.score[game.HA] > game.score[1 - game.HA]){
+				team.l = team.l + 1;
+				team.gf = team.gf + game.score[1 - game.HA];
+				team.ga = team.ga + game.score[game.HA];
+			}
+			else{
+				if(game.score[game.HA] == game.score[1 - game.HA]){
+					team.d = team.d + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 1;
+				}
+				else{
+					team.w = team.w + 1;
+					team.gf = team.gf + game.score[1 - game.HA];
+					team.ga = team.ga + game.score[game.HA];
+					team.points = team.points + 3;
+				}
+			}
+		}
+		team.gd = team.gf - team.ga;
+	}
+
+	copy = eval(JSON.stringify(divisions.west));
+	copy.sort(compare);
+
+	groupWinners.push(copy[0]);
+	others.push(...copy.slice(1, 5));
+
+	var table = document.getElementById('westTable');
+	table.innerHTML = "<tr><th></th><th>Team</th><th>Wins</th><th>Draws</th><th>Losses</th><th>Goals For</th><th>Goals Against</th><th>Goal Difference</th><th>Points</th></tr>";
+
+	for(index = 0; index < copy.length; index++){
+		team = copy[index];
+		var picSrc = eval("images." + team.key);
+		table.innerHTML = table.innerHTML + "<tr><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + team.w + "</td><td>" + team.d + "</td><td>" + team.l + "</td><td>" + team.gf + "</td><td>" + team.ga + "</td><td>" + team.gd + "</td><td>" + team.points + "</td></tr>";
+	}
+
+	groupWinners.sort(compare);
+	others.sort(compare);
+	var wildcardAway = others.slice(0,2);
+	var divisionalHome = groupWinners.slice(0,2);
+	var wildcardHome = groupWinners.slice(2,4);
+	var wildcardWinners = [];
+	var wildcardWinnerSeeds = [];
+
+	table = document.getElementById("wildcardTable");
+	var team = wildcardHome[0];
+	var picSrc = eval("images." + team.key);
+	var team1 = wildcardAway[1];
+	var picSrc1 = eval("images." + team1.key);
+	var score = getScoreBetween(teamsIndex.indexOf(team.key), teamsIndex.indexOf(team1.key));
+	if(score[0] > score[1] || score[1] > score[0]){
+		table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + "</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
+		if(score[0] > score[1]){
+			wildcardWinners.push(team);
+			wildcardWinnerSeeds.push(3);
+		}
+		else{
+			wildcardWinners.push(team1);
+			wildcardWinnerSeeds.push(6);
+		}
+	}
+	else{
+		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
+		if(score1[0] > score1[1] || score1[1] > score1[0]){
+			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
+			if(score1[1] > score1[0]){
+				wildcardWinners.push(team);
+				wildcardWinnerSeeds.push(3);
+			}
+			else{
+				wildcardWinners.push(team1);
+				wildcardWinnerSeeds.push(6);
+			}
+		}
+		else{
+			table.innerHTML = table.innerHTML + "<tr><td>3</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>6</td></tr>";
+			wildcardWinners.push(team);
+			wildcardWinnerSeeds.push(3);
+		}
+	}
+
+	team = wildcardHome[1];
+	picSrc = eval("images." + team.key);
+	team1 = wildcardAway[0];
+	picSrc1 = eval("images." + team1.key);
+	score = getScoreBetween(teamsIndex.indexOf(team.key), teamsIndex.indexOf(team1.key));
+
+	if(score[0] > score[1] || score[1] > score[0]){
+		table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + "</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
+		if(score[0] > score[1]){
+			wildcardWinners.push(team);
+			wildcardWinnerSeeds.push(4);
+		}
+		else{
+			wildcardWinners.push(team1);
+			wildcardWinnerSeeds.push(5);
+		}
+	}
+	else{
+		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
+		if(score1[0] > score1[1] || score1[1] > score1[0]){
+			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
+			if(score1[1] > score1[0]){
+				wildcardWinners.push(team);
+				wildcardWinnerSeeds.push(4);
+			}
+			else{
+				wildcardWinners.push(team1);
+				wildcardWinnerSeeds.push(5);
+			}
+		}
+		else{
+			table.innerHTML = table.innerHTML + "<tr><td>4</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>5</td></tr>";
+			wildcardWinners.push(team);
+			wildcardWinnerSeeds.push(4);
+		}
+	}
+
+	var divisionalWinners = [];
+	var divisionalWinnersSeeds = [];
+	table = document.getElementById("divisionalTable");
+
+	team = divisionalHome[0];
+	picSrc = eval("images." + team.key);
+	team1 = wildcardWinners[0];
+	picSrc1 = eval("images." + team1.key);
+	score = getScoreBetween(teamsIndex.indexOf(team.key), teamsIndex.indexOf(team1.key));
+
+	if(score[0] > score[1] || score[1] > score[0]){
+		table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + "</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
+		if(score[0] > score[1]){
+			divisionalWinners.push(team);
+			divisionalWinnersSeeds.push(1);
+		}
+		else{
+			divisionalWinners.push(team1);
+			divisionalWinnersSeeds.push(wildcardWinnerSeeds[0]);
+		}
+	}
+	else{
+		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
+		if(score1[0] > score1[1] || score1[1] > score1[0]){
+			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
+			if(score1[1] > score1[0]){
+				divisionalWinners.push(team);
+				divisionalWinnersSeeds.push(1);
+			}
+			else{
+				divisionalWinners.push(team1);
+				divisionalWinnersSeeds.push(wildcardWinnerSeeds[0]);
+			}
+		}
+		else{
+			table.innerHTML = table.innerHTML + "<tr><td>1</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[0] + "</td></tr>";
+			divisionalWinners.push(team);
+			divisionalWinnersSeeds.push(1);
+		}
+	}
+
+	team = divisionalHome[1];
+	picSrc = eval("images." + team.key);
+	team1 = wildcardWinners[1];
+	picSrc1 = eval("images." + team1.key);
+	score = getScoreBetween(teamsIndex.indexOf(team.key), teamsIndex.indexOf(team1.key));
+
+	if(score[0] > score[1] || score[1] > score[0]){
+		table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + "</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
+		if(score[0] > score[1]){
+			divisionalWinners.push(team);
+			divisionalWinnersSeeds.push(2);
+		}
+		else{
+			divisionalWinners.push(team1);
+			divisionalWinnersSeeds.push(wildcardWinnerSeeds[1]);
+		}
+	}
+	else{
+		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
+		if(score1[0] > score1[1] || score1[1] > score1[0]){
+			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
+			if(score1[1] > score1[0]){
+				divisionalWinners.push(team);
+				divisionalWinnersSeeds.push(2);
+			}
+			else{
+				divisionalWinners.push(team1);
+				divisionalWinnersSeeds.push(wildcardWinnerSeeds[1]);
+			}
+		}
+		else{
+			table.innerHTML = table.innerHTML + "<tr><td>2</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + wildcardWinnerSeeds[1] + "</td></tr>";
+			divisionalWinners.push(team);
+			divisionalWinnersSeeds.push(2);
+		}
+	}
+
+	table = document.getElementById("championshipTable");
+	var champion;
+
+	var teamSeed = 0;
+	var team1Seed = 0;
+	if(divisionalWinnersSeeds[0] < divisionalWinnersSeeds[1]){
+		team = divisionalWinners[0];
+		teamSeed = divisionalWinnersSeeds[0];
+		picSrc = eval("images." + team.key);
+		team1 = divisionalWinners[1];
+		team1Seed = divisionalWinnersSeeds[1];
+		picSrc1 = eval("images." + team1.key);
+	}
+	else{
+		team = divisionalWinners[1];
+		teamSeed = divisionalWinnersSeeds[1];
+		picSrc = eval("images." + team.key);
+		team1 = divisionalWinners[0];
+		team1Seed = divisionalWinnersSeeds[0];
+		picSrc1 = eval("images." + team1.key);
+	}
+	score = getScoreBetween(teamsIndex.indexOf(team.key), teamsIndex.indexOf(team1.key));
+
+	if(score[0] > score[1] || score[1] > score[0]){
+		table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + "</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
+		if(score[0] > score[1]){
+			champion = team;
+		}
+		else{
+			champion = team1;
+		}
+	}
+	else{
+		var score1 = getScoreBetween(teamsIndex.indexOf(team1.key), teamsIndex.indexOf(team.key));
+		if(score1[0] > score1[1] || score1[1] > score1[0]){
+			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
+			if(score1[1] > score1[0]){
+				champion = team;
+			}
+			else{
+				champion = team1;
+			}
+		}
+		else{
+			table.innerHTML = table.innerHTML + "<tr><td>" + teamSeed + "</td><td><img src=" + picSrc + " style=\"width:25px;height:25px;\"></td><td>" + team.name + "</td><td>" + score[0] + "-" + score[1] + " (" + score1[1] + "-" + score1[0] + ")</td><td>" + team1.name + "</td><td><img src=" + picSrc1 + " style=\"width:25px;height:25px;\"></td><td>" + team1Seed + "</td></tr>";
+			champion = team;
+		}
+	}
+
+	var div = document.getElementById("championDiv");
+	picSrc = eval("images." + champion.key);
+	div.innerHTML = div.innerHTML + "<b>" + champion.name + " are 2015/16 Premier League Champions!</b><br><img src=" + trophyPic + " style=\"width:136px;height:200px;\"></img><img src=" + picSrc + " style=\"width:200px;height:200px;\"></img><img src=" + trophyPic + " style=\"width:136px;height:200px;\"></img>";
+}
+
+
+function compare(a,b) {
+	if (a.points < b.points){
+		return 1;
+	}
+	if (a.points > b.points){
+		return -1;
+	}
+	if(a.points == b.points){
+		if(a.gd < b.gd){
+			return 1;
+		}
+		if(a.gd > b.gd){
+			return -1;
+		}
+		if(a.gd == b.gd){
+			if(a.gf < b.gf){
+				return 1;
+			}
+			else{
+				return -1;
+			}
+		}
+	}
+}
+
+function startWithCode(){
+	setup();
+	var textBox = document.getElementById("codeBox");
+	var code = textBox.value;
+	createScheduleWithCode(code);
+	evaluateSchedule(code);
+}
+
+function newStart(){
+	setup();
+	var code = generateCode();
+	createScheduleWithCode(code);
+	evaluateSchedule(code);
+}
+
+function createScheduleWithCode(code){
+	//rule 1
+	for(index = 0; index < divisions.north.length; index++){
+		var arr = [0,1,2,3,4];
+		var team = divisions.north[index];
+		team.schedule = [];
+		team.w = 0;
+		team.l = 0;
+		team.d = 0;
+		team.points = 0;
+		team.gf = 0;
+		team.ga = 0;
+		team.gd = 0;
+		arr.splice(index, 1);
+		for(index1 = 0; index1 < arr.length; index1++){
+			var game = {"opponent" : arr[index1], "HA" : 1};
+			var score = getScoreBetween(index, arr[index1]);
+			game.score = score;
+			team.schedule.push(game);
+			game = {"opponent" : arr[index1], "HA" : 0};
+			score = getScoreBetween(arr[index1], index);
+			game.score = score;
+			team.schedule.push(game);
+		}
+	}
+	for(index = 0; index < divisions.south.length; index++){
+		var arr = [5,6,7,8,9];
+		var team = divisions.south[index];
+		team.schedule = [];
+		team.w = 0;
+		team.l = 0;
+		team.d = 0;
+		team.points = 0;
+		team.gf = 0;
+		team.ga = 0;
+		team.gd = 0;
+		arr.splice(index, 1);
+		for(index1 = 0; index1 < arr.length; index1++){
+			var game = {"opponent" : arr[index1], "HA" : 1};
+			var score = getScoreBetween(index + 5, arr[index1]);
+			game.score = score;
+			team.schedule.push(game);
+			game = {"opponent" : arr[index1], "HA" : 0};
+			score = getScoreBetween(arr[index1], index + 5);
+			game.score = score;
+			team.schedule.push(game);
+		}
+	}
+	for(index = 0; index < divisions.east.length; index++){
+		var arr = [10,11,12,13,14];
+		var team = divisions.east[index];
+		team.schedule = [];
+		team.w = 0;
+		team.l = 0;
+		team.d = 0;
+		team.points = 0;
+		team.gf = 0;
+		team.ga = 0;
+		team.gd = 0;
+		arr.splice(index, 1);
+		for(index1 = 0; index1 < arr.length; index1++){
+			var game = {"opponent" : arr[index1], "HA" : 1};
+			var score = getScoreBetween(index + 10, arr[index1]);
+			game.score = score;
+			team.schedule.push(game);
+			game = {"opponent" : arr[index1], "HA" : 0};
+			score = getScoreBetween(arr[index1], index + 10);
+			game.score = score;
+			team.schedule.push(game);
+		}
+	}
+	for(index = 0; index < divisions.west.length; index++){
+		var arr = [15,16,17,18,19];
+		var team = divisions.west[index];
+		team.schedule = [];
+		team.w = 0;
+		team.l = 0;
+		team.d = 0;
+		team.points = 0;
+		team.gf = 0;
+		team.ga = 0;
+		team.gd = 0;
+		arr.splice(index, 1);
+		for(index1 = 0; index1 < arr.length; index1++){
+			var game = {"opponent" : arr[index1], "HA" : 1};
+			var score = getScoreBetween(index + 15, arr[index1]);
+			game.score = score;
+			team.schedule.push(game);
+			game = {"opponent" : arr[index1], "HA" : 0};
+			score = getScoreBetween(arr[index1], index + 15);
+			game.score = score;
+			team.schedule.push(game);
+		}
+	}
+
+	var str = code.substring(0,5);
+	var threeHomeArr = str.split("");
+	for(index = 0; index < threeHomeArr.length; index++){
+		var oppGroup;
+		if(parseInt(threeHomeArr[index]) < 5){
+			oppGroup = [5, 6, 7, 8, 9];
+		}
+		else{
+			oppGroup = [0, 1, 2, 3, 4];
+		}
+		team = getTeambyIndex(parseInt(threeHomeArr[index]));
+		var str1 = code.substring(2 * index + 5, 2 * index + 7);
+		var already = false;
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			game = team.schedule[index1];
+			if(game.opponent == parseInt(str1[0])){
+				already = true;
+			}
+		}
+		if(!already){
+			var gameA = {"opponent" : parseInt(str1[0]), "HA" : 0};
+			var gameH = {"opponent" : parseInt(threeHomeArr[index]), "HA" : 1};
+			var score = getScoreBetween(parseInt(str1[0]), parseInt(threeHomeArr[index]));
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp1 = getTeambyIndex(parseInt(str1[0]));
+			opp1.schedule.push(gameH);
+		}
+
+		already = false;
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			game = team.schedule[index1];
+			if(game.opponent == parseInt(str1[1])){
+				already = true;
+			}
+		}
+		if(!already){
+			var gameA = {"opponent" : parseInt(str1[1]), "HA" : 0};
+			var gameH = {"opponent" : parseInt(threeHomeArr[index]), "HA" : 1};
+			var score = getScoreBetween(parseInt(str1[1]), parseInt(threeHomeArr[index]));
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp2 = getTeambyIndex(parseInt(str1[1]));
+			opp2.schedule.push(gameH);
+		}
+
+		oppGroup.splice(oppGroup.indexOf(parseInt(str1[0])), 1);
+		oppGroup.splice(oppGroup.indexOf(parseInt(str1[1])), 1);
+
+		for(index1 = 0; index1 < oppGroup.length; index1++){
+			already = false;
+			for(index2 = 0; index2 < team.schedule.length; index2++){
+				game = team.schedule[index2];
+				if(game.opponent == oppGroup[index1]){
+					already = true;
+				}
+			}
+			if(!already){
+				var gameA = {"opponent" : parseInt(threeHomeArr[index]), "HA" : 0};
+				var gameH = {"opponent" : oppGroup[index1], "HA" : 1};
+				var score = getScoreBetween(parseInt(threeHomeArr[index]), oppGroup[index1]);
+				gameH.score = score;
+				gameA.score = score;
+				team.schedule.push(gameH);
+				var opp = getTeambyIndex(oppGroup[index1]);
+				opp.schedule.push(gameA);
+			}
+		}
+	}
+
+	var team2H;
+	var team2Hindex;
+	var oppGroup = [];
+	var team2HStr = code.substring(15, 17);
+	var arr2H = [];
+	var oppGroup1 = [];
+	if(parseInt(str[2]) < 6){
+		var arr = [0, 1, 2, 3, 4];
+		arr.splice(arr.indexOf(parseInt(str[0])), 1);
+		arr.splice(arr.indexOf(parseInt(str[1])), 1);
+		arr.splice(arr.indexOf(parseInt(str[2])), 1);
+		team2Hindex = arr[0];
+		team2H = getTeambyIndex(arr[0]);
+		oppGroup = [5, 6, 7, 8, 9];
+		arr2H = [5, 6, 7, 8, 9];
+		arr2H.splice(arr2H.indexOf(parseInt(str[3])), 1);
+		arr2H.splice(arr2H.indexOf(parseInt(str[4])), 1);
+		oppGroup1 = [0, 1, 2, 3, 4];
+	}
+	else{
+		var arr = [5, 6, 7, 8, 9];
+		arr.splice(arr.indexOf(parseInt(str[2])), 1);
+		arr.splice(arr.indexOf(parseInt(str[3])), 1);
+		arr.splice(arr.indexOf(parseInt(str[4])), 1);
+		team2Hindex = arr[0];
+		team2H = getTeambyIndex(arr[0]);
+		oppGroup = [0, 1, 2, 3, 4];
+		arr2H = [0, 1, 2, 3, 4];
+		arr2H.splice(arr2H.indexOf(parseInt(str[0])), 1);
+		arr2H.splice(arr2H.indexOf(parseInt(str[1])), 1);
+		oppGroup1 = [5, 6, 7, 8, 9];
+	}
+
+	for(index = 0; index < oppGroup.length; index++){
+		already = false;
+		for(index1 = 0; index1 < team2H.schedule.length; index1++){
+			game = team2H.schedule[index1];
+			if(game.opponent == oppGroup[index]){
+				already = true;
+			}
+		}
+		if(!already){
+			if(oppGroup[index] == parseInt(team2HStr[0]) || oppGroup[index] == parseInt(team2HStr[1])){
+				var gameA = {"opponent" : team2Hindex, "HA" : 0};
+				var gameH = {"opponent" : oppGroup[index], "HA" : 1};
+				var score = getScoreBetween(team2Hindex, oppGroup[index]);
+				gameH.score = score;
+				gameA.score = score;
+				team2H.schedule.push(gameH);
+				var opp = getTeambyIndex(oppGroup[index]);
+				opp.schedule.push(gameA);
+			}
+			else{
+				var gameA = {"opponent" : oppGroup[index], "HA" : 0};
+				var gameH = {"opponent" : team2Hindex, "HA" : 1};
+				var score = getScoreBetween(oppGroup[index], team2Hindex);
+				gameH.score = score;
+				gameA.score = score;
+				team2H.schedule.push(gameA);
+				var opp = getTeambyIndex(oppGroup[index]);
+				opp.schedule.push(gameH);
+			}
+		}
+	}
+
+	for(index = 0; index < arr2H.length; index++){
+		var team = getTeambyIndex(arr2H[index]);
+		var oppGroup2 = eval(JSON.stringify(oppGroup1));
+		var homeGames = 0;
+		for(index1 = 8; index1 < team.schedule.length; index1++){
+			if(team.schedule[index1].HA == 1){
+				homeGames = homeGames + 1;
+			}
+			oppGroup2.splice(oppGroup2.indexOf(team.schedule[index1].opponent), 1);
+		}
+		if(homeGames == 1){
+			var gameA = {"opponent" : arr2H[index], "HA" : 0};
+			var gameH = {"opponent" : oppGroup2[0], "HA" : 1};
+			var score = getScoreBetween(arr2H[index], oppGroup2[0]);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameH);
+			var opp = getTeambyIndex(oppGroup2[0]);
+			opp.schedule.push(gameA);
+		}
+		else{
+			var gameA = {"opponent" : oppGroup2[0], "HA" : 0};
+			var gameH = {"opponent" : arr2H[index], "HA" : 1};
+			var score = getScoreBetween(oppGroup2[0], arr2H[index]);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp = getTeambyIndex(oppGroup2[0]);
+			opp.schedule.push(gameH);
+		}
+	}
+
+	//repeat for other two group
+
+	str = code.substring(17, 22);
+	threeHomeArr = str.split("");
+	for(index = 0; index < threeHomeArr.length; index++){
+		var oppGroup;
+		if(parseInt(threeHomeArr[index]) < 5){
+			oppGroup = [15, 16, 17, 18, 19];
+		}
+		else{
+			oppGroup = [10, 11, 12, 13, 14];
+		}
+		team = getTeambyIndex(parseInt(threeHomeArr[index]) + 10);
+		var str1 = code.substring(2 * index + 22, 2 * index + 24);
+		var already = false;
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			game = team.schedule[index1];
+			if(game.opponent == parseInt(str1[0]) + 10){
+				already = true;
+			}
+		}
+		if(!already){
+			var gameA = {"opponent" : parseInt(str1[0]) + 10, "HA" : 0};
+			var gameH = {"opponent" : parseInt(threeHomeArr[index]) + 10, "HA" : 1};
+			var score = getScoreBetween(parseInt(str1[0]) + 10, parseInt(threeHomeArr[index]) + 10);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp1 = getTeambyIndex(parseInt(str1[0]) + 10);
+			opp1.schedule.push(gameH);
+		}
+
+		already = false;
+		for(index1 = 0; index1 < team.schedule.length; index1++){
+			game = team.schedule[index1];
+			if(game.opponent == parseInt(str1[1]) + 10){
+				already = true;
+			}
+		}
+		if(!already){
+			var gameA = {"opponent" : parseInt(str1[1]) + 10, "HA" : 0};
+			var gameH = {"opponent" : parseInt(threeHomeArr[index]) + 10, "HA" : 1};
+			var score = getScoreBetween(parseInt(str1[1]) + 10, parseInt(threeHomeArr[index]) + 10);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp2 = getTeambyIndex(parseInt(str1[1]) + 10);
+			opp2.schedule.push(gameH);
+		}
+
+		oppGroup.splice(oppGroup.indexOf(parseInt(str1[0]) + 10), 1);
+		oppGroup.splice(oppGroup.indexOf(parseInt(str1[1]) + 10), 1);
+
+		for(index1 = 0; index1 < oppGroup.length; index1++){
+			already = false;
+			for(index2 = 0; index2 < team.schedule.length; index2++){
+				game = team.schedule[index2];
+				if(game.opponent == oppGroup[index1]){
+					already = true;
+				}
+			}
+			if(!already){
+				var gameA = {"opponent" : parseInt(threeHomeArr[index]) + 10, "HA" : 0};
+				var gameH = {"opponent" : oppGroup[index1], "HA" : 1};
+				var score = getScoreBetween(parseInt(threeHomeArr[index]) + 10, oppGroup[index1]);
+				gameH.score = score;
+				gameA.score = score;
+				team.schedule.push(gameH);
+				var opp = getTeambyIndex(oppGroup[index1]);
+				opp.schedule.push(gameA);
+			}
+		}
+	}
+
+	team2H;
+	team2Hindex;
+	oppGroup = [];
+	team2HStr = code.substring(32, 34);
+	arr2H = [];
+	oppGroup1 = [];
+	if(parseInt(str[2]) < 6){
+		var arr = [10, 11, 12, 13, 14];
+		arr.splice(arr.indexOf(parseInt(str[0]) + 10), 1);
+		arr.splice(arr.indexOf(parseInt(str[1]) + 10), 1);
+		arr.splice(arr.indexOf(parseInt(str[2]) + 10), 1);
+		team2Hindex = arr[0];
+		team2H = getTeambyIndex(arr[0]);
+		oppGroup = [15, 16, 17, 18, 19];
+		arr2H = [15, 16, 17, 18, 19];
+		arr2H.splice(arr2H.indexOf(parseInt(str[3]) + 10), 1);
+		arr2H.splice(arr2H.indexOf(parseInt(str[4]) + 10), 1);
+		oppGroup1 = [10, 11, 12, 13, 14];
+	}
+	else{
+		var arr = [15, 16, 17, 18, 19];
+		arr.splice(arr.indexOf(parseInt(str[2]) + 10), 1);
+		arr.splice(arr.indexOf(parseInt(str[3]) + 10), 1);
+		arr.splice(arr.indexOf(parseInt(str[4]) + 10), 1);
+		team2Hindex = arr[0];
+		team2H = getTeambyIndex(arr[0]);
+		oppGroup = [10, 11, 12, 13, 14];
+		arr2H = [10, 11, 12, 13, 14];
+		arr2H.splice(arr2H.indexOf(parseInt(str[0]) + 10), 1);
+		arr2H.splice(arr2H.indexOf(parseInt(str[1]) + 10), 1);
+		oppGroup1 = [15, 16, 17, 18, 19];
+	}
+
+	for(index = 0; index < oppGroup.length; index++){
+		already = false;
+		for(index1 = 0; index1 < team2H.schedule.length; index1++){
+			game = team2H.schedule[index1];
+			if(game.opponent == oppGroup[index]){
+				already = true;
+			}
+		}
+		if(!already){
+			if(oppGroup[index] == parseInt(team2HStr[0]) + 10 || oppGroup[index] == parseInt(team2HStr[1]) + 10){
+				var gameA = {"opponent" : team2Hindex, "HA" : 0};
+				var gameH = {"opponent" : oppGroup[index], "HA" : 1};
+				var score = getScoreBetween(team2Hindex, oppGroup[index]);
+				gameH.score = score;
+				gameA.score = score;
+				team2H.schedule.push(gameH);
+				var opp = getTeambyIndex(oppGroup[index]);
+				opp.schedule.push(gameA);
+			}
+			else{
+				var gameA = {"opponent" : oppGroup[index], "HA" : 0};
+				var gameH = {"opponent" : team2Hindex, "HA" : 1};
+				var score = getScoreBetween(oppGroup[index], team2Hindex);
+				gameH.score = score;
+				gameA.score = score;
+				team2H.schedule.push(gameA);
+				var opp = getTeambyIndex(oppGroup[index]);
+				opp.schedule.push(gameH);
+			}
+		}
+	}
+
+	for(index = 0; index < arr2H.length; index++){
+		var team = getTeambyIndex(arr2H[index]);
+		var oppGroup2 = eval(JSON.stringify(oppGroup1));
+		var homeGames = 0;
+		for(index1 = 8; index1 < team.schedule.length; index1++){
+			if(team.schedule[index1].HA == 1){
+				homeGames = homeGames + 1;
+			}
+			oppGroup2.splice(oppGroup2.indexOf(team.schedule[index1].opponent), 1);
+		}
+		if(homeGames == 1){
+			var gameA = {"opponent" : arr2H[index], "HA" : 0};
+			var gameH = {"opponent" : oppGroup2[0], "HA" : 1};
+			var score = getScoreBetween(arr2H[index], oppGroup2[0]);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameH);
+			var opp = getTeambyIndex(oppGroup2[0]);
+			opp.schedule.push(gameA);
+		}
+		else{
+			var gameA = {"opponent" : oppGroup2[0], "HA" : 0};
+			var gameH = {"opponent" : arr2H[index], "HA" : 1};
+			var score = getScoreBetween(oppGroup2[0], arr2H[index]);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp = getTeambyIndex(oppGroup2[0]);
+			opp.schedule.push(gameH);
+		}
+	}
+
+	str = code.substring(34, 36);
+	var dig = parseInt(str);
+	var dig5 = Math.floor(dig / 16);
+	var dig4 = Math.floor((dig - dig5 * 16) / 8);
+	var dig3 = Math.floor((dig - dig5 * 16 - dig4 * 8) / 4);
+	var dig2 = Math.floor((dig - dig5 * 16 - dig4 * 8 - dig3 * 4) / 2);
+	var dig1 = Math.floor((dig - dig5 * 16 - dig4 * 8 - dig3 * 4 - dig2 * 2));
+
+	str = code.substring(36, 41);
+	arr = str.split("");
+	for(index = 0; index < divisions.north.length; index++){
+		var team = getTeambyIndex(index);
+		if(eval("dig" + (index + 1)) == 1){
+			var gameA = {"opponent" : index, "HA" : 0};
+			var gameH = {"opponent" : parseInt(arr[index]) + 10, "HA" : 1};
+			var score = getScoreBetween(index, parseInt(arr[index]) + 10);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameH);
+			var opp = getTeambyIndex(parseInt(arr[index]) + 10);
+			opp.schedule.push(gameA);
+		}
+		else{
+			var gameA = {"opponent" : parseInt(arr[index]) + 10, "HA" : 0};
+			var gameH = {"opponent" : index, "HA" : 1};
+			var score = getScoreBetween(parseInt(arr[index]) + 10, index);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp = getTeambyIndex(parseInt(arr[index]) + 10);
+			opp.schedule.push(gameH);
+		}
+	}
+
+	str = code.substring(41, 46);
+	arr = str.split("");
+	for(index = 0; index < divisions.north.length; index++){
+		var team = getTeambyIndex(index);
+		if(eval("dig" + (index + 1)) == 0){
+			var gameA = {"opponent" : index, "HA" : 0};
+			var gameH = {"opponent" : parseInt(arr[index]) + 10, "HA" : 1};
+			var score = getScoreBetween(index, parseInt(arr[index]) + 10);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameH);
+			var opp = getTeambyIndex(parseInt(arr[index]) + 10);
+			opp.schedule.push(gameA);
+		}
+		else{
+			var gameA = {"opponent" : parseInt(arr[index]) + 10, "HA" : 0};
+			var gameH = {"opponent" : index, "HA" : 1};
+			var score = getScoreBetween(parseInt(arr[index]) + 10, index);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			var opp = getTeambyIndex(parseInt(arr[index]) + 10);
+			opp.schedule.push(gameH);
+		}
+	}
+
+	str = code.substring(46, 51);
+	arr = str.split("");
+	for(index = 0; index < divisions.south.length; index++){
+		var team = getTeambyIndex(index + 5);
+		var opp = getTeambyIndex(parseInt(arr[index]) + 10);
+		if(opp.schedule[13].HA == 1){
+			var gameA = {"opponent" : index + 5, "HA" : 0};
+			var gameH = {"opponent" : parseInt(arr[index]) + 10, "HA" : 1};
+			var score = getScoreBetween(index + 5, parseInt(arr[index]) + 10);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameH);
+			opp.schedule.push(gameA);
+		}
+		else{
+			var gameA = {"opponent" : parseInt(arr[index]) + 10, "HA" : 0};
+			var gameH = {"opponent" : index + 5, "HA" : 1};
+			var score = getScoreBetween(parseInt(arr[index]) + 10, index + 5);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			opp.schedule.push(gameH);
+		}
+	}
+
+	str = code.substring(51, 56);
+	arr = str.split("");
+	for(index = 0; index < divisions.south.length; index++){
+		var team = getTeambyIndex(index + 5);
+		var opp = getTeambyIndex(parseInt(arr[index]) + 10);
+		if(opp.schedule[13].HA == 1){
+			var gameA = {"opponent" : index + 5, "HA" : 0};
+			var gameH = {"opponent" : parseInt(arr[index]) + 10, "HA" : 1};
+			var score = getScoreBetween(index + 5, parseInt(arr[index]) + 10);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameH);
+			opp.schedule.push(gameA);
+		}
+		else{
+			var gameA = {"opponent" : parseInt(arr[index]) + 10, "HA" : 0};
+			var gameH = {"opponent" : index + 5, "HA" : 1};
+			var score = getScoreBetween(parseInt(arr[index]) + 10, index + 5);
+			gameH.score = score;
+			gameA.score = score;
+			team.schedule.push(gameA);
+			opp.schedule.push(gameH);
+		}
+	}
+}
+
+function getTeambyIndex(index){
+	if(index < 5){
+		return divisions.north[index];
+	}
+	if(index < 10){
+		return divisions.south[index - 5];
+	}
+	if(index < 15){
+		return divisions.east[index - 10];
+	}
+	if(index < 20){
+		return divisions.west[index - 15];
+	}
+	
+}
+
+function getScoreBetween(home, away){
+	var homeKey = getTeambyIndex(home).key;
+	var awayKey = getTeambyIndex(away).key;
+
+	for(ind = 0; ind < actualResults.length; ind++){
+		var matchday = actualResults[ind];
+		for(ind1 = 0; ind1 < matchday.matches.length; ind1++){
+			var match = matchday.matches[ind1];
+			if(match.team1.key == homeKey && match.team2.key == awayKey){
+				return[match.score1, match.score2];
+			}
+		}
+	}
+	return [0, 0];
+}
+
+function generateCode(){
+	/*code format
+	Division pairs: North & South, East & West
+	1st pair: North & South
+	5 digits: 5 teams with 3 home games
+	10 digits: teams that they play their away games against
+	2 digits: 2 teams that 1 team with 2 home games will play its home games against
+	2nd pair: East & West
+	5 digits: 5 teams with 3 home games
+	10 digits: teams that they play their away games against
+	2 digits: 2 teams that 1 team with 2 home games will play its home games against
+	
+	Division pairs: North & East, North & West, South & East, South & West
+	1st pair: North & East
+	2 digits: base 10 conversion of base 2 representation of North's home/away configuartion where 1 is home and 0 is away
+	5 digits: ordering of teams in East to designate matchups
+	2nd pair: North & West
+	5 digits: ordering of teams in West to designate matchups
+	(Home/Away status is implied from 1st pair)
+	3rd pair: South & East
+	5 digits: ordering of teams in East to designate matchups
+	(Home/Away status is implied from 1st pair)
+	4th pair: South & West
+	5 digits: ordering of teams in West to designate matchups
+	(Home/Away status is implied from 1st pair)
+
+	Total length: 56 digits
+	*/
+
+	var code = "";
+
+	var rand = Math.round(Math.random());
+	var choices1 = ["0", "1", "2", "3", "4"];
+	var chosen1 = [];
+	while(choices1.length > 3 - rand){
+		var a = Math.floor(Math.random() * choices1.length);
+		code = code + choices1[a];
+		chosen1.push(choices1.splice(a, 1)[0]);
+	}
+
+	var choices2 = ["5", "6", "7", "8", "9"];
+	var chosen2 = [];
+	while(choices2.length > 2 + rand){
+		var a = Math.floor(Math.random() * choices2.length);
+		code = code + choices2[a];
+		chosen2.push(choices2.splice(a, 1)[0]);
+	}
+
+	notChosen1 = eval(JSON.stringify(choices1));
+	notChosen2 = eval(JSON.stringify(choices2));
+
+	var group33H = "";
+	var group23H = "";
+	var group33HChosen = [];
+	var group23HChosen = [];
+	var group33HNotChosen = [];
+	if(rand == 1){
+		group33H = "01234";
+		group23H = "56789";
+		group33HChosen = chosen1;
+		group23HChosen = chosen2;
+		group33HNotChosen = notChosen1;
+	}
+	else{
+		group33H = "56789";
+		group23H = "01234";
+		group33HChosen = chosen2;
+		group23HChosen = chosen1;
+		group33HNotChosen = notChosen2;
+	}
+	var str23H = group33H.shuffle().slice(0,2);
+	str23H = str23H + group33H.shuffle().slice(0,2);
+
+	var str33H = "";
+	var options = group23H;
+	for(index1 = 0; index1 < group23HChosen.length; index1++){
+		var team1 = group23HChosen[index1];
+		options = options.replace(team1, "");
+	}
+	for(index = 0; index < group33HChosen.length; index++){
+		var team = group33HChosen[index];
+		var strTeam = "";
+		if(str23H.slice(0,2).split(team).length - 1 == 0){
+			strTeam = strTeam + group23HChosen[0];
+		}
+		if(str23H.slice(2,4).split(team).length - 1 == 0){
+			strTeam = strTeam + group23HChosen[1];
+		}
+		var numNeeded = 2 - strTeam.length;
+		if(numNeeded > 0){
+			options = options.shuffle();
+			strTeam = strTeam + options.slice(0, numNeeded);
+		}
+		str33H = str33H + strTeam;
+	}
+
+	var team = group33HNotChosen[0];
+	var strTeam = "";
+	if(str23H.slice(0,2).split(team).length - 1 == 1){
+		strTeam = strTeam + group23HChosen[0];
+	}
+	if(str23H.slice(2,4).split(team).length - 1 == 1){
+		strTeam = strTeam + group23HChosen[1];
+	}
+	var numNeeded = 2 - strTeam.length;
+	for(index = 0; index < options.length; index++){
+		var str2 = str33H;
+		if(str2.split(options[index]).length - 1 == 0){
+			options.replace(options[index], "");
+		}
+	}
+	if(numNeeded > 0){
+		options = options.shuffle();
+		strTeam = strTeam + options.slice(0, numNeeded);
+	}
+
+	if(rand == 0){
+		code = code + str23H + str33H + strTeam;
+	}
+	else{
+		code = code + str33H + str23H + strTeam;
+	}
+
+	//repeat for 2nd pair
+
+	rand = Math.round(Math.random());
+	choices1 = ["0", "1", "2", "3", "4"];
+	chosen1 = [];
+	while(choices1.length > 3 - rand){
+		var a = Math.floor(Math.random() * choices1.length);
+		code = code + choices1[a];
+		chosen1.push(choices1.splice(a, 1)[0]);
+	}
+
+	choices2 = ["5", "6", "7", "8", "9"];
+	chosen2 = [];
+	while(choices2.length > 2 + rand){
+		var a = Math.floor(Math.random() * choices2.length);
+		code = code + choices2[a];
+		chosen2.push(choices2.splice(a, 1)[0]);
+	}
+
+	notChosen1 = eval(JSON.stringify(choices1));
+	notChosen2 = eval(JSON.stringify(choices2));
+
+	group33H = "";
+	group23H = "";
+	group33HChosen = [];
+	group23HChosen = [];
+	group33HNotChosen = [];
+	if(rand == 1){
+		group33H = "01234";
+		group23H = "56789";
+		group33HChosen = chosen1;
+		group23HChosen = chosen2;
+		group33HNotChosen = notChosen1;
+	}
+	else{
+		group33H = "56789";
+		group23H = "01234";
+		group33HChosen = chosen2;
+		group23HChosen = chosen1;
+		group33HNotChosen = notChosen2;
+	}
+	str23H = group33H.shuffle().slice(0,2);
+	str23H = str23H + group33H.shuffle().slice(0,2);
+
+	str33H = "";
+	options = group23H;
+	for(index1 = 0; index1 < group23HChosen.length; index1++){
+		var team1 = group23HChosen[index1];
+		options = options.replace(team1, "");
+	}
+	for(index = 0; index < group33HChosen.length; index++){
+		var team = group33HChosen[index];
+		var strTeam = "";
+		if(str23H.slice(0,2).split(team).length - 1 == 0){
+			strTeam = strTeam + group23HChosen[0];
+		}
+		if(str23H.slice(2,4).split(team).length - 1 == 0){
+			strTeam = strTeam + group23HChosen[1];
+		}
+		var numNeeded = 2 - strTeam.length;
+		if(numNeeded > 0){
+			options = options.shuffle();
+			strTeam = strTeam + options.slice(0, numNeeded);
+		}
+		str33H = str33H + strTeam;
+	}
+
+	team = group33HNotChosen[0];
+	strTeam = "";
+	if(str23H.slice(0,2).split(team).length - 1 == 1){
+		strTeam = strTeam + group23HChosen[0];
+	}
+	if(str23H.slice(2,4).split(team).length - 1 == 1){
+		strTeam = strTeam + group23HChosen[1];
+	}
+	numNeeded = 2 - strTeam.length;
+	for(index = 0; index < options.length; index++){
+		var str2 = str33H;
+		if(str2.split(options[index]).length - 1 == 0){
+			options.replace(options[index], "");
+		}
+	}
+	if(numNeeded > 0){
+		options = options.shuffle();
+		strTeam = strTeam + options.slice(0, numNeeded);
+	}
+
+	if(rand == 0){
+		code = code + str23H + str33H + strTeam;
+	}
+	else{
+		code = code + str33H + str23H + strTeam;
+	}
+
+	//Next rule
+
+	var dig1 = Math.round(Math.random());
+	var dig2 = Math.round(Math.random());
+	var dig3 = Math.round(Math.random());
+	var dig4 = Math.round(Math.random());
+	var dig5 = Math.round(Math.random());
+	var dig = dig1 + dig2 * 2 + dig3 * 4 + dig4 * 8 + dig5 * 16;
+	if(dig > 9){
+		code = code + dig;
+	}
+	else{
+		code = code + "0" + dig;
+	}
+	str = "01234";
+	code = code + str.shuffle();
+	str = "56789";
+	code = code + str.shuffle();
+	str = "01234";
+	code = code + str.shuffle();
+	str = "56789";
+	code = code + str.shuffle();
+	return code
+}
+
+
+
+//DATA HERE
+
+var trophyPic = "http://orig06.deviantart.net/afab/f/2014/222/c/2/premier_league_trophy_render_by_fristajlere-d7unae9.png";
+
+var teamsIndex = ["stoke", "mancity", "manutd", "newcastle", "sunderland", "arsenal", "crystalpalace", "southampton", "tottenham", "bournemouth", "chelsea", "norwich", "watford", "westham", "leicester", "everton", "liverpool", "astonvilla", "swansea", "westbrom"];
+
+var divisions = {"north" : [{"name" : "Stoke City", "key" : "stoke"}, {"name" : "Manchester City", "key" : "mancity"}, {"name" : "Manchester United", "key" : "manutd"}, {"name" : "Newcastle United", "key" : "newcastle"}, {"name" : "Sunderland", "key" : "sunderland"}], "south" : [{"name" : "Arsenal", "key" : "arsenal"}, {"name" : "Crystal Palace", "key" : "crystalpalace"}, {"name" : "Southampton", "key" : "southampton"}, {"name" : "Tottenham Hotspur", "key" : "tottenham"}, {"name" : "Bournemouth", "key" : "bournemouth"}], "east" : [{"name" : "Chelsea", "key" : "chelsea"}, {"name" : "Norwich", "key" : "norwich"}, {"name" : "Watford", "key" : "watford"}, {"name" : "West Ham United", "key" : "westham"}, {"name" : "Leicester City", "key" : "leicester"}], "west" : [{"name" : "Everton", "key" : "everton"}, {"name" : "Liverpool", "key" : "liverpool"}, {"name" : "Aston Villa", "key" : "astonvilla"}, {"name" : "Swansea City", "key" : "swansea"}, {"name" : "West Bromwich Albion", "key" : "westbrom"}]};
+
+var images = {"stoke" : "https://upload.wikimedia.org/wikipedia/en/thumb/2/29/Stoke_City_FC.svg/885px-Stoke_City_FC.svg.png", "mancity" : "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1024px-Manchester_City_FC_badge.svg.png", "manutd" : "http://www.manutd.com/~/media/510AE241278B45FF97125DC1E1E32CBF.ashx", "newcastle" : "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Newcastle_United_Logo.svg/1017px-Newcastle_United_Logo.svg.png", "sunderland" : "https://upload.wikimedia.org/wikipedia/en/thumb/7/77/Logo_Sunderland.svg/1229px-Logo_Sunderland.svg.png", "arsenal" : "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/870px-Arsenal_FC.svg.png", "crystalpalace" : "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Crystal_Palace_FC_logo.svg/821px-Crystal_Palace_FC_logo.svg.png", "southampton" : "https://upload.wikimedia.org/wikipedia/en/thumb/c/c9/FC_Southampton.svg/898px-FC_Southampton.svg.png", "tottenham" : "https://upload.wikimedia.org/wikipedia/en/thumb/b/b4/Tottenham_Hotspur.svg/519px-Tottenham_Hotspur.svg.png", "bournemouth" : "https://upload.wikimedia.org/wikipedia/en/thumb/b/bf/AFC_Bournemouth.svg/908px-AFC_Bournemouth.svg.png", "chelsea" : "https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1024px-Chelsea_FC.svg.png", "norwich" : "http://www.canaries.co.uk/cms_images/common/ncfc-crest-200x200132-205704.png", "watford" : "https://upload.wikimedia.org/wikipedia/en/thumb/e/e2/Watford.svg/918px-Watford.svg.png", "westham" : "https://www.whufc.com/themes/westham/logo_westham.png", "leicester" : "https://upload.wikimedia.org/wikipedia/en/b/b6/Leicester_City.svg", "everton" : "https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/Everton_FC_logo.svg/1002px-Everton_FC_logo.svg.png", "liverpool" : "http://assets2.lfcimages.com/uploads/placeholders/splash_crest.png", "astonvilla" : "https://upload.wikimedia.org/wikipedia/en/2/26/Aston_villa_logo16.png", "swansea" : "http://www.swanseacity.net/cms_images/team/swansea-city58-3107.png", "westbrom" : "https://upload.wikimedia.org/wikipedia/en/thumb/8/8b/West_Bromwich_Albion.svg/856px-West_Bromwich_Albion.svg.png"};
+
+var actualResults = [{"name":"Play-Off um 1 Premierleague-Platz:","matches":[{"date":"2015-08-08","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":0},{"date":"2015-08-08","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":0,"score2":1},{"date":"2015-08-08","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":2},{"date":"2015-08-08","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":4,"score2":2},{"date":"2015-08-08","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":3},{"date":"2015-08-08","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":2,"score2":2},{"date":"2015-08-09","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":0,"score2":2},{"date":"2015-08-09","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":2,"score2":2},{"date":"2015-08-09","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":0,"score2":1},{"date":"2015-08-10","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":3}]},{"name":"Matchday 2","matches":[{"date":"2015-08-14","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":0,"score2":1},{"date":"2015-08-15","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":3},{"date":"2015-08-15","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":3},{"date":"2015-08-15","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":2,"score2":0},{"date":"2015-08-15","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":2,"score2":2},{"date":"2015-08-15","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":0,"score2":0},{"date":"2015-08-15","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":2},{"date":"2015-08-16","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":1,"score2":2},{"date":"2015-08-16","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":3,"score2":0},{"date":"2015-08-17","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":1,"score2":0}]},{"name":"Matchday 3","matches":[{"date":"2015-08-22","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":0,"score2":0},{"date":"2015-08-22","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":2,"score2":1},{"date":"2015-08-22","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":1},{"date":"2015-08-22","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":1,"score2":1},{"date":"2015-08-22","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":1},{"date":"2015-08-22","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":3,"score2":4},{"date":"2015-08-23","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":2,"score2":3},{"date":"2015-08-23","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":2},{"date":"2015-08-23","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":0,"score2":0},{"date":"2015-08-24","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":0,"score2":0}]},{"name":"Matchday 4","matches":[{"date":"2015-08-29","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":1},{"date":"2015-08-29","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":1},{"date":"2015-08-29","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":2,"score2":2},{"date":"2015-08-29","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":2},{"date":"2015-08-29","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":0,"score2":3},{"date":"2015-08-29","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":0},{"date":"2015-08-29","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":0,"score2":1},{"date":"2015-08-29","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":0},{"date":"2015-08-30","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":3,"score2":0},{"date":"2015-08-30","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":2,"score2":1}]},{"name":"Matchday 5","matches":[{"date":"2015-09-12","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":3,"score2":1},{"date":"2015-09-12","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":2,"score2":0},{"date":"2015-09-12","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":1},{"date":"2015-09-12","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":3,"score2":1},{"date":"2015-09-12","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":0},{"date":"2015-09-12","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":0,"score2":0},{"date":"2015-09-12","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":3,"score2":1},{"date":"2015-09-13","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":0,"score2":1},{"date":"2015-09-13","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":3,"score2":2},{"date":"2015-09-14","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":2,"score2":0}]},{"name":"Matchday 6","matches":[{"date":"2015-09-19","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":2,"score2":0},{"date":"2015-09-19","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":2,"score2":0},{"date":"2015-09-19","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":0,"score2":1},{"date":"2015-09-19","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":1,"score2":2},{"date":"2015-09-19","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":2,"score2":2},{"date":"2015-09-19","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":0},{"date":"2015-09-19","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":1,"score2":2},{"date":"2015-09-20","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":0},{"date":"2015-09-20","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":1},{"date":"2015-09-20","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":2,"score2":3}]},{"name":"Matchday 7","matches":[{"date":"2015-09-26","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":4,"score2":1},{"date":"2015-09-26","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":2,"score2":5},{"date":"2015-09-26","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":3,"score2":2},{"date":"2015-09-26","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":3,"score2":0},{"date":"2015-09-26","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":3,"score2":1},{"date":"2015-09-26","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":2,"score2":1},{"date":"2015-09-26","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":2,"score2":2},{"date":"2015-09-26","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":2,"score2":2},{"date":"2015-09-27","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":0,"score2":1},{"date":"2015-09-28","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":2,"score2":3}]},{"name":"Matchday 8","matches":[{"date":"2015-10-03","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":1,"score2":1},{"date":"2015-10-03","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":3,"score2":0},{"date":"2015-10-03","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":0,"score2":1},{"date":"2015-10-03","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":3},{"date":"2015-10-03","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":0},{"date":"2015-10-03","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":1,"score2":1},{"date":"2015-10-03","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":6,"score2":1},{"date":"2015-10-03","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":2},{"date":"2015-10-03","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":2},{"date":"2015-10-03","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":2,"score2":2}]},{"name":"Matchday 9","matches":[{"date":"2015-10-17","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":2,"score2":0},{"date":"2015-10-17","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":1,"score2":3},{"date":"2015-10-17","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":0,"score2":3},{"date":"2015-10-17","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":5,"score2":1},{"date":"2015-10-17","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":6,"score2":2},{"date":"2015-10-17","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":2,"score2":2},{"date":"2015-10-17","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":0,"score2":1},{"date":"2015-10-17","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":0,"score2":0},{"date":"2015-10-17","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":3},{"date":"2015-10-17","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":1,"score2":0}]},{"name":"Matchday 10","matches":[{"date":"2015-10-24","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":5},{"date":"2015-10-24","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":2,"score2":1},{"date":"2015-10-24","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":2},{"date":"2015-10-24","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":0},{"date":"2015-10-24","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":1},{"date":"2015-10-24","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":0},{"date":"2015-10-24","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":0,"score2":1},{"date":"2015-10-24","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":0,"score2":2},{"date":"2015-10-24","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":3,"score2":0},{"date":"2015-10-24","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":2,"score2":1}]},{"name":"Matchday 11","matches":[{"date":"2015-10-31","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":1,"score2":3},{"date":"2015-10-31","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":0,"score2":0},{"date":"2015-10-31","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":6,"score2":2},{"date":"2015-10-31","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":2,"score2":1},{"date":"2015-10-31","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":0,"score2":0},{"date":"2015-10-31","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":2,"score2":0},{"date":"2015-10-31","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":3},{"date":"2015-10-31","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":3,"score2":1},{"date":"2015-10-31","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":0},{"date":"2015-10-31","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":2,"score2":3}]},{"name":"Matchday 12","matches":[{"date":"2015-11-07","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":0,"score2":1},{"date":"2015-11-07","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":1},{"date":"2015-11-07","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":0},{"date":"2015-11-07","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":1},{"date":"2015-11-07","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":2},{"date":"2015-11-07","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":0},{"date":"2015-11-07","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":0},{"date":"2015-11-07","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":1,"score2":0},{"date":"2015-11-07","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":0,"score2":1},{"date":"2015-11-07","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":1,"score2":1}]},{"name":"Matchday 13","matches":[{"date":"2015-11-21","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":0},{"date":"2015-11-21","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":0,"score2":1},{"date":"2015-11-21","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":4,"score2":0},{"date":"2015-11-21","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":1,"score2":4},{"date":"2015-11-21","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":0,"score2":3},{"date":"2015-11-21","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":0,"score2":1},{"date":"2015-11-21","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":2,"score2":2},{"date":"2015-11-21","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":4,"score2":1},{"date":"2015-11-21","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":1,"score2":2},{"date":"2015-11-21","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":2,"score2":1}]},{"name":"Matchday 14","matches":[{"date":"2015-11-28","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":3,"score2":3},{"date":"2015-11-28","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":3},{"date":"2015-11-28","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":5,"score2":1},{"date":"2015-11-28","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":1,"score2":1},{"date":"2015-11-28","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":0},{"date":"2015-11-28","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":3,"score2":1},{"date":"2015-11-28","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":1,"score2":1},{"date":"2015-11-28","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":2,"score2":0},{"date":"2015-11-28","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":0,"score2":0},{"date":"2015-11-28","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":1,"score2":1}]},{"name":"Matchday 15","matches":[{"date":"2015-12-05","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":3,"score2":1},{"date":"2015-12-05","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":0,"score2":1},{"date":"2015-12-05","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":1},{"date":"2015-12-05","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":0,"score2":0},{"date":"2015-12-05","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":2,"score2":0},{"date":"2015-12-05","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":1,"score2":1},{"date":"2015-12-05","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":2,"score2":0},{"date":"2015-12-05","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":0,"score2":3},{"date":"2015-12-05","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":2,"score2":0},{"date":"2015-12-05","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":1}]},{"name":"Matchday 16","matches":[{"date":"2015-12-12","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":2,"score2":1},{"date":"2015-12-12","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":2},{"date":"2015-12-12","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":0},{"date":"2015-12-12","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":2,"score2":1},{"date":"2015-12-12","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":2},{"date":"2015-12-12","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":2,"score2":1},{"date":"2015-12-12","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":1,"score2":1},{"date":"2015-12-12","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":0,"score2":1},{"date":"2015-12-12","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":1,"score2":2},{"date":"2015-12-12","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":0,"score2":0}]},{"name":"Matchday 17","matches":[{"date":"2015-12-19","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":2,"score2":1},{"date":"2015-12-19","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":3,"score2":1},{"date":"2015-12-19","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":2,"score2":3},{"date":"2015-12-19","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":2},{"date":"2015-12-19","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":1,"score2":1},{"date":"2015-12-19","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":0,"score2":2},{"date":"2015-12-19","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":2},{"date":"2015-12-19","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":0,"score2":0},{"date":"2015-12-19","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":3,"score2":0},{"date":"2015-12-19","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":1,"score2":2}]},{"name":"Matchday 18","matches":[{"date":"2015-12-26","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":0,"score2":0},{"date":"2015-12-26","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":1,"score2":1},{"date":"2015-12-26","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":2},{"date":"2015-12-26","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":0},{"date":"2015-12-26","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":4,"score2":1},{"date":"2015-12-26","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":1},{"date":"2015-12-26","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":4,"score2":0},{"date":"2015-12-26","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":2,"score2":0},{"date":"2015-12-26","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":1,"score2":0},{"date":"2015-12-26","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":3,"score2":0}]},{"name":"Matchday 19","matches":[{"date":"2015-12-28","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":2,"score2":0},{"date":"2015-12-28","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":0,"score2":0},{"date":"2015-12-28","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":3,"score2":4},{"date":"2015-12-28","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":0},{"date":"2015-12-28","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":0,"score2":0},{"date":"2015-12-28","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":2,"score2":0},{"date":"2015-12-28","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":0,"score2":1},{"date":"2015-12-28","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":2},{"date":"2015-12-28","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":1,"score2":0},{"date":"2015-12-28","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":2,"score2":1}]},{"name":"Matchday 20","matches":[{"date":"2016-01-02","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":1,"score2":0},{"date":"2016-01-02","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":0,"score2":0},{"date":"2016-01-02","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":2,"score2":1},{"date":"2016-01-02","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":0},{"date":"2016-01-02","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":3,"score2":1},{"date":"2016-01-02","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":1,"score2":2},{"date":"2016-01-02","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":2,"score2":1},{"date":"2016-01-02","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":2,"score2":0},{"date":"2016-01-03","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":0,"score2":3},{"date":"2016-01-03","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":1}]},{"name":"Matchday 21","matches":[{"date":"2016-01-12","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":1,"score2":3},{"date":"2016-01-12","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":0},{"date":"2016-01-12","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":3,"score2":3},{"date":"2016-01-12","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":2,"score2":4},{"date":"2016-01-13","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":2},{"date":"2016-01-13","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":0},{"date":"2016-01-13","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":3,"score2":3},{"date":"2016-01-13","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":0},{"date":"2016-01-13","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":3,"score2":1},{"date":"2016-01-13","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":0,"score2":1}]},{"name":"Matchday 22","matches":[{"date":"2016-01-16","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":3,"score2":0},{"date":"2016-01-16","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":1},{"date":"2016-01-16","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":3,"score2":3},{"date":"2016-01-16","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":4,"score2":0},{"date":"2016-01-16","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":1},{"date":"2016-01-16","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":3,"score2":0},{"date":"2016-01-16","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":4,"score2":1},{"date":"2016-01-17","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":0,"score2":1},{"date":"2016-01-17","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":0},{"date":"2016-01-18","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":1,"score2":0}]},{"name":"Matchday 23","matches":[{"date":"2016-01-23","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":3},{"date":"2016-01-23","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":3,"score2":0},{"date":"2016-01-23","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":0,"score2":1},{"date":"2016-01-23","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":4,"score2":5},{"date":"2016-01-23","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":1,"score2":1},{"date":"2016-01-23","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":2,"score2":1},{"date":"2016-01-23","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":0,"score2":0},{"date":"2016-01-23","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":2,"score2":2},{"date":"2016-01-24","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":0,"score2":1},{"date":"2016-01-24","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":2}]},{"name":"Matchday 24","matches":[{"date":"2016-02-02","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":0,"score2":0},{"date":"2016-02-02","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":1,"score2":2},{"date":"2016-02-02","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":2,"score2":0},{"date":"2016-02-02","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":3,"score2":0},{"date":"2016-02-02","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":0,"score2":3},{"date":"2016-02-02","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":1},{"date":"2016-02-02","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":0,"score2":0},{"date":"2016-02-02","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":1},{"date":"2016-02-02","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":2,"score2":0},{"date":"2016-02-03","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":3,"score2":0}]},{"name":"Matchday 25","matches":[{"date":"2016-02-06","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":2,"score2":0},{"date":"2016-02-06","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":2,"score2":2},{"date":"2016-02-06","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":3},{"date":"2016-02-06","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":1,"score2":0},{"date":"2016-02-06","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":3},{"date":"2016-02-06","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":1},{"date":"2016-02-06","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":1,"score2":0},{"date":"2016-02-07","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":2},{"date":"2016-02-07","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":1,"score2":1},{"date":"2016-02-08","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":1,"score2":0}]},{"name":"Matchday 26","matches":[{"date":"2016-02-13","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":1,"score2":3},{"date":"2016-02-13","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":5,"score2":1},{"date":"2016-02-13","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":1,"score2":2},{"date":"2016-02-13","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":0,"score2":1},{"date":"2016-02-13","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":2},{"date":"2016-02-13","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":2,"score2":1},{"date":"2016-02-13","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":0,"score2":1},{"date":"2016-02-14","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":2,"score2":1},{"date":"2016-02-14","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":0,"score2":6},{"date":"2016-02-14","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":2}]},{"name":"Matchday 27","matches":[{"date":"2016-02-27","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":0},{"date":"2016-02-27","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":1,"score2":2},{"date":"2016-02-27","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":2,"score2":1},{"date":"2016-02-27","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":0,"score2":0},{"date":"2016-02-27","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":3,"score2":2},{"date":"2016-02-27","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":1,"score2":0},{"date":"2016-02-28","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":4,"score2":0},{"date":"2016-02-28","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":3,"score2":2},{"date":"2016-02-28","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":1,"score2":1},{"date":"2016-02-28","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":2,"score2":1}]},{"name":"Matchday 28","matches":[{"date":"2016-03-01","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":2,"score2":0},{"date":"2016-03-01","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":1,"score2":3},{"date":"2016-03-01","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":2},{"date":"2016-03-01","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":1,"score2":2},{"date":"2016-03-01","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":2,"score2":2},{"date":"2016-03-02","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":2},{"date":"2016-03-02","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":3,"score2":0},{"date":"2016-03-02","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":1,"score2":0},{"date":"2016-03-02","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":1,"score2":0},{"date":"2016-03-02","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":0}]},{"name":"Matchday 29","matches":[{"date":"2016-03-05","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":1,"score2":1},{"date":"2016-03-05","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":3},{"date":"2016-03-05","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":4,"score2":0},{"date":"2016-03-05","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":1,"score2":3},{"date":"2016-03-05","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":1,"score2":1},{"date":"2016-03-05","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":0},{"date":"2016-03-05","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":2,"score2":2},{"date":"2016-03-05","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":0,"score2":1},{"date":"2016-03-06","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":1,"score2":2},{"date":"2016-03-06","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":1,"score2":0}]},{"name":"Matchday 30","matches":[{"date":"2016-03-12","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":3,"score2":2},{"date":"2016-03-12","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":0},{"date":"2016-03-12","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":0,"score2":2},{"date":"2016-03-12","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":2,"score2":0},{"date":"2016-03-12","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":0},{"date":"2016-03-12","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":2},{"date":"2016-03-12","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":3,"score2":0},{"date":"2016-03-12","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":3,"score2":1},{"date":"2016-03-13","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":1,"score2":1},{"date":"2016-03-14","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":1,"score2":0}]},{"name":"Matchday 31","matches":[{"date":"2016-03-19","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":2},{"date":"2016-03-19","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":0,"score2":1},{"date":"2016-03-19","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":2},{"date":"2016-03-19","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":3,"score2":2},{"date":"2016-03-19","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":1,"score2":0},{"date":"2016-03-19","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":3,"score2":0},{"date":"2016-03-19","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":1,"score2":2},{"date":"2016-03-19","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":0,"score2":1},{"date":"2016-03-20","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":0,"score2":1},{"date":"2016-03-20","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":1,"score2":1}]},{"name":"Matchday 32","matches":[{"date":"2016-04-02","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":4},{"date":"2016-04-02","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":4,"score2":0},{"date":"2016-04-02","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":0,"score2":4},{"date":"2016-04-02","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":0},{"date":"2016-04-02","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":1,"score2":1},{"date":"2016-04-02","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":1,"score2":0},{"date":"2016-04-02","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":3,"score2":2},{"date":"2016-04-02","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":2,"score2":2},{"date":"2016-04-02","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":0,"score2":0},{"date":"2016-04-02","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":2,"score2":2}]},{"name":"Matchday 33","matches":[{"date":"2016-04-09","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":1,"score2":2},{"date":"2016-04-09","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":0},{"date":"2016-04-09","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":4,"score2":1},{"date":"2016-04-09","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":2,"score2":1},{"date":"2016-04-09","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":3,"score2":1},{"date":"2016-04-09","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":0,"score2":2},{"date":"2016-04-09","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":1,"score2":0},{"date":"2016-04-09","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":3,"score2":0},{"date":"2016-04-09","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":1,"score2":1},{"date":"2016-04-09","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":3,"score2":3}]},{"name":"Matchday 34","matches":[{"date":"2016-04-16","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":1,"score2":2},{"date":"2016-04-16","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":1},{"date":"2016-04-16","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":0,"score2":3},{"date":"2016-04-16","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":1},{"date":"2016-04-16","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":2},{"date":"2016-04-16","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":1,"score2":0},{"date":"2016-04-16","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":3,"score2":0},{"date":"2016-04-16","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":0,"score2":3},{"date":"2016-04-16","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":0,"score2":4},{"date":"2016-04-16","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":0,"score2":1}]},{"name":"Matchday 35","matches":[{"date":"2016-04-23","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":1,"score2":4},{"date":"2016-04-23","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":2,"score2":4},{"date":"2016-04-23","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":0,"score2":0},{"date":"2016-04-23","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":4,"score2":0},{"date":"2016-04-23","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":2,"score2":2},{"date":"2016-04-23","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":4,"score2":0},{"date":"2016-04-23","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":4,"score2":2},{"date":"2016-04-23","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":0,"score2":0},{"date":"2016-04-23","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":1,"score2":1},{"date":"2016-04-23","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":3,"score2":2}]},{"name":"Matchday 36","matches":[{"date":"2016-04-30","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":1,"score2":0},{"date":"2016-04-30","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":2,"score2":2},{"date":"2016-04-30","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":2,"score2":1},{"date":"2016-04-30","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":1},{"date":"2016-04-30","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":1,"score2":0},{"date":"2016-04-30","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":4,"score2":2},{"date":"2016-04-30","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":1,"score2":1},{"date":"2016-04-30","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":3,"score2":1},{"date":"2016-04-30","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":3,"score2":2},{"date":"2016-04-30","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":0,"score2":3},{"date":"2016-04-30","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":null,"score2":null}]},{"name":"Matchday 37","matches":[{"date":"2016-05-07","team1":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"team2":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"score1":1,"score2":1},{"date":"2016-05-07","team1":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"team2":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"score1":0,"score2":0},{"date":"2016-05-07","team1":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"team2":{"key":"stoke","name":"Stoke City","code":"STK"},"score1":2,"score2":1},{"date":"2016-05-07","team1":{"key":"leicester","name":"Leicester City","code":"LEI"},"team2":{"key":"everton","name":"Everton","code":"EVE"},"score1":3,"score2":1},{"date":"2016-05-07","team1":{"key":"liverpool","name":"Liverpool","code":"LIV"},"team2":{"key":"watford","name":"Watford","code":"WAT"},"score1":2,"score2":0},{"date":"2016-05-07","team1":{"key":"mancity","name":"Manchester City","code":"MCI"},"team2":{"key":"arsenal","name":"Arsenal","code":"ARS"},"score1":2,"score2":2},{"date":"2016-05-07","team1":{"key":"norwich","name":"Norwich","code":"NOR"},"team2":{"key":"manutd","name":"Manchester United","code":"MUN"},"score1":0,"score2":1},{"date":"2016-05-07","team1":{"key":"sunderland","name":"Sunderland","code":"SUN"},"team2":{"key":"chelsea","name":"Chelsea","code":"CHE"},"score1":3,"score2":2},{"date":"2016-05-07","team1":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"team2":{"key":"southampton","name":"Southampton","code":"SOU"},"score1":1,"score2":2},{"date":"2016-05-07","team1":{"key":"westham","name":"West Ham United","code":"WHU"},"team2":{"key":"swansea","name":"Swansea","code":"SWA"},"score1":1,"score2":4}]},{"name":"Matchday 38","matches":[{"date":"2016-05-15","team1":{"key":"arsenal","name":"Arsenal","code":"ARS"},"team2":{"key":"astonvilla","name":"Aston Villa","code":"AVL"},"score1":4,"score2":0},{"date":"2016-05-15","team1":{"key":"chelsea","name":"Chelsea","code":"CHE"},"team2":{"key":"leicester","name":"Leicester City","code":"LEI"},"score1":1,"score2":1},{"date":"2016-05-15","team1":{"key":"everton","name":"Everton","code":"EVE"},"team2":{"key":"norwich","name":"Norwich","code":"NOR"},"score1":3,"score2":0},{"date":"2016-05-15","team1":{"key":"manutd","name":"Manchester United","code":"MUN"},"team2":{"key":"bournemouth","name":"Bournemouth","code":"BOU"},"score1":3,"score2":1},{"date":"2016-05-15","team1":{"key":"newcastle","name":"Newcastle United","code":"NEW"},"team2":{"key":"tottenham","name":"Tottenham Hotspur","code":"TOT"},"score1":5,"score2":1},{"date":"2016-05-15","team1":{"key":"southampton","name":"Southampton","code":"SOU"},"team2":{"key":"crystalpalace","name":"Crystal Palace","code":"CRY"},"score1":4,"score2":1},{"date":"2016-05-15","team1":{"key":"stoke","name":"Stoke City","code":"STK"},"team2":{"key":"westham","name":"West Ham United","code":"WHU"},"score1":2,"score2":1},{"date":"2016-05-15","team1":{"key":"swansea","name":"Swansea","code":"SWA"},"team2":{"key":"mancity","name":"Manchester City","code":"MCI"},"score1":1,"score2":1},{"date":"2016-05-15","team1":{"key":"watford","name":"Watford","code":"WAT"},"team2":{"key":"sunderland","name":"Sunderland","code":"SUN"},"score1":2,"score2":2},{"date":"2016-05-15","team1":{"key":"westbrom","name":"West Bromwich Albion","code":"WBA"},"team2":{"key":"liverpool","name":"Liverpool","code":"LIV"},"score1":1,"score2":1}]}];
+
+</script>
+</head>
+<body onLoad="setupTables()">
+<div id="buttonDiv">
+	<button onclick="newStart()">
+	Start Without Code
+	</button>
+	<br>
+	<button onclick="startWithCode()">
+	Start With Code:
+	</button>
+	<input type="text" id="codeBox">
+	</input>
+</div>
+<br>
+<b>North</b>
+<table id="northTable" border="1">
+	<tr>
+		<th></th>
+		<th>Team</th>
+		<th>Wins</th>
+		<th>Draws</th>
+		<th>Losses</th>
+		<th>Goals For</th>
+		<th>Goals Against</th>
+		<th>Goal Difference</th>
+		<th>Points</th>
+	</tr>
+</table>
+<br>
+<b>South</b>
+<table id="southTable" border="1">
+	<tr>
+		<th></th>
+		<th>Team</th>
+		<th>Wins</th>
+		<th>Draws</th>
+		<th>Losses</th>
+		<th>Goals For</th>
+		<th>Goals Against</th>
+		<th>Goal Difference</th>
+		<th>Points</th>
+	</tr>
+</table>
+<br>
+<b>East</b>
+<table id="eastTable" border="1">
+	<tr>
+		<th></th>
+		<th>Team</th>
+		<th>Wins</th>
+		<th>Draws</th>
+		<th>Losses</th>
+		<th>Goals For</th>
+		<th>Goals Against</th>
+		<th>Goal Difference</th>
+		<th>Points</th>
+	</tr>
+</table>
+<br>
+<b>West</b>
+<table id="westTable" border="1">
+	<tr>
+		<th></th>
+		<th>Team</th>
+		<th>Wins</th>
+		<th>Draws</th>
+		<th>Losses</th>
+		<th>Goals For</th>
+		<th>Goals Against</th>
+		<th>Goal Difference</th>
+		<th>Points</th>
+	</tr>
+</table>
+<br>
+<b>Wildcard Round</b>
+<table id="wildcardTable" border="1">
+	<tr>
+		<th>Seed</th>
+		<th></th>
+		<th>Home Team</th>
+		<th>Score (Replay)</th>
+		<th>Away Team</th>
+		<th></th>
+		<th>Seed</th>
+	</tr>
+</table>
+<br>
+<b>Divisional Round</b>
+<table id="divisionalTable" border="1">
+	<tr>
+		<th>Seed</th>
+		<th></th>
+		<th>Home Team</th>
+		<th>Score (Replay)</th>
+		<th>Away Team</th>
+		<th></th>
+		<th>Seed</th>
+	</tr>
+</table>
+<br>
+<b>Championship</b>
+<table id="championshipTable" border="1">
+	<tr>
+		<th>Seed</th>
+		<th></th>
+		<th>Home Team</th>
+		<th>Score (Replay)</th>
+		<th>Away Team</th>
+		<th></th>
+		<th>Seed</th>
+	</tr>
+</table>
+<br>
+<div id="championDiv">
+</div>
+</body>
+</html>
